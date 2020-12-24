@@ -14,7 +14,7 @@ const service = axios.create({
 service.interceptors.request.use(
   config => {
     // do something before request is sent
-    if (config.params.limit && config.params.page) {
+    if (config.params && config.params.limit && config.params.page) {
       config.params.start = (config.params.page - 1) * config.params.limit
       config.params.offset = config.params.start
       config.params.length = config.params.limit

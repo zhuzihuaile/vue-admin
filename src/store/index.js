@@ -16,4 +16,6 @@ const store = new Vuex.Store({
   getters
 })
 
+store.dispatch('app/setLanguage', process.env.VUE_APP_LANG)
+
 export default store

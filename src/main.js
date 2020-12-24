@@ -39,7 +39,7 @@ Vue.use(ElementUI, { i18n: (key, value) => i18n.t(key, value) })
 
 Vue.config.productionTip = false
 // console.log(process.env.lang)
-// store.dispatch('app/setLanguage', process.env.lang)
+// store.dispatch('app/setLanguage', process.env.VUE_APP_LANG)
 
 new Vue({
   el: '#app',

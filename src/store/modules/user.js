@@ -35,7 +35,7 @@ const mutations = {
   }
 }
 
-const hosturl = 'http://192.168.0.244:8989/api-book/admin/article/info/36'
+const hosturl = process.env.VUE_APP_HOST_URL + '/admin/article/info/36'
 
 const actions = {
   // user login
@@ -77,10 +77,11 @@ const actions = {
       service.get(hosturl,
         {
           headers:
-        {
-          'content-type': 'application/json',
-          'X-Token': getToken()
-        }}).then(response => {
+            {
+              'content-type': 'application/json',
+              'X-Token': getToken()
+            }
+        }).then(response => {
         // console.log(response)
         const { data } = response
 

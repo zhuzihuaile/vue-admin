@@ -3,7 +3,10 @@
     <div class="filter-container">
       <el-input v-model="listQuery.title" placeholder="Title" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
-        Search
+        {{ $t('table.search') }}
+      </el-button>
+      <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="handleCreate">
+        {{ $t('table.add') }}
       </el-button>
     </div>
     <el-table
@@ -23,46 +26,40 @@
         </template>
       </el-table-column>
 
-      <el-table-column width="180px" align="center" label="Date">
-        <template slot-scope="scope">
-          <span>{{ scope.row.updateTime | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
-        </template>
-      </el-table-column>
-
-      <el-table-column width="520px" align="center" label="summary">
-        <template slot-scope="scope">
-          <span>{{ scope.row.summary }}</span>
-        </template>
-      </el-table-column>
-
-      <el-table-column class-name="status-col" label="Status" width="110">
-        <template slot-scope="{row}">
-          <el-tag :type="row.status | statusFilter">
-            {{ row.status }}
-          </el-tag>
-        </template>
-      </el-table-column>
-
-      <el-table-column min-width="120px" label="Title">
+      <el-table-column min-width="120px" :label="$t('table.title')">
         <template slot-scope="{row}">
           <span>{{ row.title }}</span>
         </template>
       </el-table-column>
 
+      <el-table-column class-name="status-col" label="状态" width="110">
+        <template slot-scope="{row}">
+          <el-tag>
+            <span>{{ row.status | statusFilter }}</span>
+          </el-tag>
+        </template>
+      </el-table-column>
+
+      <el-table-column width="180px" align="center" label="时间">
+        <template slot-scope="scope">
+          <span>{{ scope.row.updateTime | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
+        </template>
+      </el-table-column>
+
+      <el-table-column width="520px" align="center" label="备注">
+        <template slot-scope="scope">
+          <span>{{ scope.row.summary }}</span>
+        </template>
+      </el-table-column>
+
       <el-table-column :label="$t('table.actions')" align="center" width="230" class-name="small-padding fixed-width">
-        <template slot-scope="{row,$index}">
+        <template slot-scope="{row}">
           <el-button type="primary" size="mini" @click="handleUpdate(row)">
             {{ $t('table.edit') }}
           </el-button>
-          <el-button v-if="row.status!='published'" size="mini" type="success" @click="handleModifyStatus(row,'published')">
-            {{ $t('table.publish') }}
-          </el-button>
-          <el-button v-if="row.status!='draft'" size="mini" @click="handleModifyStatus(row,'draft')">
-            {{ $t('table.draft') }}
-          </el-button>
-          <el-button v-if="row.status!='deleted'" size="mini" type="danger" @click="handleDelete(row,$index)">
+          <!-- <el-button v-if="row.status!='deleted'" size="mini" type="danger" @click="handleDelete(row,$index)">
             {{ $t('table.delete') }}
-          </el-button>
+          </el-button> -->
         </template>
       </el-table-column>
     </el-table>
@@ -70,29 +67,29 @@
     <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />
 
     <!-- 创建和编辑 -->
-    <!-- <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
+    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
       <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="70px" style="width: 400px; margin-left:50px;">
-        <el-form-item :label="$t('table.type')" prop="type">
+        <!-- <el-form-item :label="$t('table.type')" prop="type">
           <el-select v-model="temp.type" class="filter-item" placeholder="Please select">
             <el-option v-for="item in calendarTypeOptions" :key="item.key" :label="item.display_name" :value="item.key" />
           </el-select>
-        </el-form-item>
-        <el-form-item :label="$t('table.date')" prop="timestamp">
-          <el-date-picker v-model="temp.timestamp" type="datetime" placeholder="Please pick a date" />
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item :label="$t('table.title')" prop="title">
           <el-input v-model="temp.title" />
         </el-form-item>
+        <el-form-item :label="$t('table.date')" prop="updateTime">
+          <el-date-picker v-model="temp.updateTime" type="datetime" placeholder="Please pick a date" />
+        </el-form-item>
         <el-form-item :label="$t('table.status')">
-          <el-select v-model="temp.status" class="filter-item" placeholder="Please select">
-            <el-option v-for="item in statusOptions" :key="item" :label="item" :value="item" />
+          <el-select v-model="statusOptions[temp.status]" class="filter-item" placeholder="Please select">
+            <el-option v-for="(value, key) in statusOptions" :key="value" :label="value" :value="key" />
           </el-select>
         </el-form-item>
-        <el-form-item :label="$t('table.importance')">
+        <!--  <el-form-item :label="$t('table.importance')">
           <el-rate v-model="temp.importance" :colors="['#99A9BF', '#F7BA2A', '#FF9900']" :max="3" style="margin-top:8px;" />
-        </el-form-item>
-        <el-form-item :label="$t('table.remark')">
-          <el-input v-model="temp.remark" :autosize="{ minRows: 2, maxRows: 4}" type="textarea" placeholder="Please input" />
+        </el-form-item> -->
+        <el-form-item label="备注" prop="summary">
+          <el-input v-model="temp.summary" :autosize="{ minRows: 3, maxRows: 10}" type="textarea" placeholder="Please input" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -103,16 +100,21 @@
           {{ $t('table.confirm') }}
         </el-button>
       </div>
-    </el-dialog> -->
+    </el-dialog>
 
   </div>
 </template>
 
 <script>
-import { fetchList } from '@/api/test'
+import { fetchList, fetchCreate, fetchUpdate } from '@/api/test'
 import { parseTime } from '@/utils'
 import waves from '@/directive/waves' // waves directi
 import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
+
+const statusOptions = {
+  0: 'No',
+  1: 'Yes'
+}
 
 export default {
   name: 'List',
@@ -120,8 +122,7 @@ export default {
   directives: { waves },
   filters: {
     statusFilter(status) {
-      const statusMap = ['no', 'yes']
-      return statusMap[status]
+      return statusOptions[status]
     },
     parseTime: parseTime
   },
@@ -133,15 +134,24 @@ export default {
       listLoading: true,
       temp: {
         id: undefined,
-        importance: 1,
-        remark: '',
-        timestamp: new Date(),
+        updateTime: new Date(),
         title: '',
-        type: '',
-        status: '1'
+        summary: '',
+        status: 1
+      },
+      textMap: {
+        update: 'Edit',
+        create: 'Create'
+      },
+      statusOptions: statusOptions,
+      dialogFormVisible: false,
+      rules: {
+        summary: [{ required: true, message: 'summary is required', trigger: 'change' }],
+        updateTime: [{ type: 'date', required: true, message: 'timestamp is required', trigger: 'change' }],
+        title: [{ required: true, message: 'title is required', trigger: 'blur' }]
       },
       listQuery: {
-        sortbyStr: 't.id asc',
+        sortbyStr: undefined,
         page: 1,
         limit: 5
       }
@@ -179,19 +189,17 @@ export default {
       } else if (order === 'descending') {
         this.listQuery.sortbyStr = 't.' + prop + ' desc'
       } else {
-        this.listQuery.sortbyStr = null
+        this.listQuery.sortbyStr = undefined
       }
       this.handleFilter()
     },
     resetTemp() {
       this.temp = {
         id: undefined,
-        importance: 1,
-        remark: '',
-        timestamp: new Date(),
+        updateTime: new Date(),
         title: '',
-        status: 'published',
-        type: ''
+        summary: '',
+        status: 1
       }
     },
     handleCreate() {
@@ -205,9 +213,9 @@ export default {
     createData() {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
-          this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
-          this.temp.author = 'vue-element-admin'
-          /* createArticle(this.temp).then(() => {
+          const tempData = Object.assign({}, this.temp)
+          tempData.updateTime = +new Date(tempData.updateTime) // change Thu Nov 30 2017 16:41:05 GMT+0800 (CST) to 1512031311464
+          fetchCreate(tempData).then(() => {
             this.list.unshift(this.temp)
             this.dialogFormVisible = false
             this.$notify({
@@ -216,13 +224,13 @@ export default {
               type: 'success',
               duration: 2000
             })
-          }) */
+          })
         }
       })
     },
     handleUpdate(row) {
       this.temp = Object.assign({}, row) // copy obj
-      this.temp.timestamp = new Date(this.temp.timestamp)
+      this.temp.updateTime = new Date(this.temp.updateTime)
       this.dialogStatus = 'update'
       this.dialogFormVisible = true
       this.$nextTick(() => {
@@ -233,8 +241,8 @@ export default {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           const tempData = Object.assign({}, this.temp)
-          tempData.timestamp = +new Date(tempData.timestamp) // change Thu Nov 30 2017 16:41:05 GMT+0800 (CST) to 1512031311464
-          /* updateArticle(tempData).then(() => {
+          tempData.updateTime = +new Date(tempData.updateTime) // change Thu Nov 30 2017 16:41:05 GMT+0800 (CST) to 1512031311464
+          fetchUpdate(tempData).then(() => {
             const index = this.list.findIndex(v => v.id === this.temp.id)
             this.list.splice(index, 1, this.temp)
             this.dialogFormVisible = false
@@ -244,7 +252,7 @@ export default {
               type: 'success',
               duration: 2000
             })
-          }) */
+          })
         }
       })
     }
