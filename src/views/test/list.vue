@@ -45,7 +45,7 @@
 </template>
 
 <script>
-import { fetchList } from '@/api/log'
+import { fetchList } from '@/api/test'
 import { parseTime } from '@/utils'
 import waves from '@/directive/waves' // waves directi
 import Pagination from '@/components/Pagination' // Secondary package based on el-pagination

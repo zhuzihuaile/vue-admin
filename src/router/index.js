@@ -58,15 +58,15 @@ export const constantRoutes = [
   {
     path: '',
     component: Layout,
-    redirect: '/log/list',
-    name: 'log',
+    redirect: '/test/list',
+    name: 'test',
     // meta: { title: '基础', icon: 'el-icon-s-help' },
     children: [
       {
-        path: '/log/list',
-        name: 'log',
-        component: () => import('@/views/log/list'),
-        meta: { title: '日志', icon: 'table' }
+        path: '/test/list',
+        name: 'test',
+        component: () => import('@/views/test/list'),
+        meta: { title: '测试', icon: 'table' }
       }
     ]
   },
