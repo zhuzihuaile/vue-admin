@@ -1,6 +1,6 @@
 import request from '@/utils/request'
 
-const hosturl = process.env.VUE_APP_HOST_URL + '/admin/article'
+const hosturl = process.env.VUE_APP_HOST_URL + '/vue/test'
 
 export function fetchList(query) {
   return request({

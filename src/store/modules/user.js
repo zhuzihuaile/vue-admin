@@ -2,6 +2,7 @@ import { getToken, setToken, removeToken } from '@/utils/auth'
 import { resetRouter } from '@/router'
 import axios from 'axios'
 import { Message } from 'element-ui'
+import md5 from 'js-md5'
 
 // create an axios instance
 const service = axios.create({
@@ -35,16 +36,26 @@ const mutations = {
   }
 }
 
-const hosturl = process.env.VUE_APP_HOST_URL + '/admin/article/info/36'
+const hosturl = process.env.VUE_APP_HOST_URL + process.env.VUE_APP_LOGIN_URL
 
 const actions = {
   // user login
   login({ commit }, userInfo) {
     const { username, password } = userInfo
     return new Promise((resolve, reject) => {
-      // login({ username: username.trim(), password: password }).then(response => {
-      service.get(hosturl).then(response => {
-        if (username !== 'admin' || password !== 'pwd123') {
+      service.get(hosturl, {
+        headers:
+            {
+              'content-type': 'application/json'
+            },
+        params:
+            {
+              'username': username,
+              'password': md5(password)
+            }
+      }).then(response => {
+        console.log(response)
+        if (response.data.code !== 200) {
           Message({
             message: 'Account and password are incorrect.',
             type: 'error',
@@ -53,17 +64,15 @@ const actions = {
           resolve()
           return
         }
-        // console.log(response)
-        response = {
-          code: 200,
-          data: {
-            token: '123456654321'
-          }
-        }
-        const { data } = response
-        commit('SET_TOKEN', data.token)
-        setToken(data.token)
-        resolve()
+        const { result } = response.data
+        commit('SET_TOKEN', result.token)
+        setToken(result.token)
+
+        const { title, cover } = result.user
+        commit('SET_NAME', title)
+        commit('SET_AVATAR', cover)
+
+        resolve(result)
       }).catch(error => {
         reject(error)
       })
@@ -74,7 +83,7 @@ const actions = {
   getInfo({ commit, state }) {
     return new Promise((resolve, reject) => {
       // getInfo(state.token).then(response => {
-      service.get(hosturl,
+      service.get(process.env.VUE_APP_HOST_URL + '/user/info',
         {
           headers:
             {
@@ -89,11 +98,11 @@ const actions = {
           return reject('Verification failed, please Login again.')
         }
 
-        const { article } = data.data
-        const { title, coverUrl } = article
+        const { user } = data.result
+        const { title, cover } = user
 
         commit('SET_NAME', title)
-        commit('SET_AVATAR', coverUrl)
+        commit('SET_AVATAR', cover)
         resolve(data)
       }).catch(error => {
         reject(error)

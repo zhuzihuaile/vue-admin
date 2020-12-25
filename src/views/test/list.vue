@@ -32,7 +32,7 @@
         </template>
       </el-table-column>
 
-      <el-table-column class-name="status-col" label="状态" width="110">
+      <el-table-column class-name="status-col" label="状态" width="100">
         <template slot-scope="{row}">
           <el-tag>
             <span>{{ row.status | statusFilter }}</span>
@@ -42,7 +42,7 @@
 
       <el-table-column width="180px" align="center" label="时间">
         <template slot-scope="scope">
-          <span>{{ scope.row.updateTime | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
+          <span>{{ scope.row.testTime | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
         </template>
       </el-table-column>
 
@@ -77,12 +77,12 @@
         <el-form-item :label="$t('table.title')" prop="title">
           <el-input v-model="temp.title" />
         </el-form-item>
-        <el-form-item :label="$t('table.date')" prop="updateTime">
-          <el-date-picker v-model="temp.updateTime" type="datetime" placeholder="Please pick a date" />
+        <el-form-item :label="$t('table.date')" prop="testTime">
+          <el-date-picker v-model="temp.testTime" type="datetime" placeholder="Please pick a date" />
         </el-form-item>
         <el-form-item :label="$t('table.status')">
-          <el-select v-model="statusOptions[temp.status]" class="filter-item" placeholder="Please select">
-            <el-option v-for="(value, key) in statusOptions" :key="value" :label="value" :value="key" />
+          <el-select v-model="temp.status" class="filter-item" placeholder="Please select">
+            <el-option v-for="item in statusOptions" :key="item.lable" :label="item.lable" :value="item.value" />
           </el-select>
         </el-form-item>
         <!--  <el-form-item :label="$t('table.importance')">
@@ -111,10 +111,14 @@ import { parseTime } from '@/utils'
 import waves from '@/directive/waves' // waves directi
 import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
 
-const statusOptions = {
-  0: 'No',
-  1: 'Yes'
-}
+const statusOptions = [
+  {
+    lable: 'No', value: 0
+  },
+  {
+    lable: 'Yes', value: 1
+  }
+]
 
 export default {
   name: 'List',
@@ -122,7 +126,11 @@ export default {
   directives: { waves },
   filters: {
     statusFilter(status) {
-      return statusOptions[status]
+      for (var item of statusOptions) {
+        if (item.value === status) {
+          return item.lable
+        }
+      }
     },
     parseTime: parseTime
   },
@@ -134,7 +142,7 @@ export default {
       listLoading: true,
       temp: {
         id: undefined,
-        updateTime: new Date(),
+        testTime: new Date(),
         title: '',
         summary: '',
         status: 1
@@ -145,13 +153,15 @@ export default {
       },
       statusOptions: statusOptions,
       dialogFormVisible: false,
+      dialogStatus: '',
       rules: {
         summary: [{ required: true, message: 'summary is required', trigger: 'change' }],
-        updateTime: [{ type: 'date', required: true, message: 'timestamp is required', trigger: 'change' }],
+        testTime: [{ type: 'date', required: true, message: 'timestamp is required', trigger: 'change' }],
         title: [{ required: true, message: 'title is required', trigger: 'blur' }]
       },
       listQuery: {
-        sortbyStr: undefined,
+        sortby: undefined,
+        order: undefined,
         page: 1,
         limit: 5
       }
@@ -185,18 +195,21 @@ export default {
     },
     sortByProp(prop, order) {
       if (order === 'ascending') {
-        this.listQuery.sortbyStr = 't.' + prop + ' asc'
+        this.listQuery.sortby = prop
+        this.listQuery.order = 'asc'
       } else if (order === 'descending') {
-        this.listQuery.sortbyStr = 't.' + prop + ' desc'
+        this.listQuery.sortby = prop
+        this.listQuery.order = 'desc'
       } else {
-        this.listQuery.sortbyStr = undefined
+        this.listQuery.sortby = undefined
+        this.listQuery.order = undefined
       }
       this.handleFilter()
     },
     resetTemp() {
       this.temp = {
         id: undefined,
-        updateTime: new Date(),
+        testTime: new Date(),
         title: '',
         summary: '',
         status: 1
@@ -214,7 +227,7 @@ export default {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           const tempData = Object.assign({}, this.temp)
-          tempData.updateTime = +new Date(tempData.updateTime) // change Thu Nov 30 2017 16:41:05 GMT+0800 (CST) to 1512031311464
+          tempData.testTime = +new Date(tempData.testTime) // change Thu Nov 30 2017 16:41:05 GMT+0800 (CST) to 1512031311464
           fetchCreate(tempData).then(() => {
             this.list.unshift(this.temp)
             this.dialogFormVisible = false
@@ -224,13 +237,14 @@ export default {
               type: 'success',
               duration: 2000
             })
+            this.handleFilter()
           })
         }
       })
     },
     handleUpdate(row) {
       this.temp = Object.assign({}, row) // copy obj
-      this.temp.updateTime = new Date(this.temp.updateTime)
+      this.temp.testTime = new Date(this.temp.testTime)
       this.dialogStatus = 'update'
       this.dialogFormVisible = true
       this.$nextTick(() => {
@@ -241,7 +255,7 @@ export default {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           const tempData = Object.assign({}, this.temp)
-          tempData.updateTime = +new Date(tempData.updateTime) // change Thu Nov 30 2017 16:41:05 GMT+0800 (CST) to 1512031311464
+          tempData.testTime = +new Date(tempData.testTime) // change Thu Nov 30 2017 16:41:05 GMT+0800 (CST) to 1512031311464
           fetchUpdate(tempData).then(() => {
             const index = this.list.findIndex(v => v.id === this.temp.id)
             this.list.splice(index, 1, this.temp)
@@ -252,6 +266,7 @@ export default {
               type: 'success',
               duration: 2000
             })
+            this.handleFilter()
           })
         }
       })

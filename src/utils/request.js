@@ -72,7 +72,13 @@ service.interceptors.response.use(
       }
       return Promise.reject(new Error(res.message || 'Error'))
     } else {
-      res.data.items = res.data.list
+      if (res.result) {
+        res.data = res.result
+      }
+
+      if (res.data && res.data.list) {
+        res.data.items = res.data.list
+      }
       return res
     }
   },
