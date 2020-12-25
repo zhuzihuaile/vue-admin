@@ -70,6 +70,21 @@ export const constantRoutes = [
       }
     ]
   },
+  {
+    path: '',
+    component: Layout,
+    redirect: '/vuetest/list',
+    name: 'test',
+    // meta: { title: '基础', icon: 'el-icon-s-help' },
+    children: [
+      {
+        path: '/vuetest/list',
+        name: 'test',
+        component: () => import('@/views/VueTest/list'),
+        meta: { title: 'vuetest', icon: 'table' }
+      }
+    ]
+  },
 
   // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true }
