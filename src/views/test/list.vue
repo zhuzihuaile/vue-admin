@@ -57,9 +57,9 @@
           <el-button type="primary" size="mini" @click="handleUpdate(row)">
             {{ $t('table.edit') }}
           </el-button>
-          <!-- <el-button v-if="row.status!='deleted'" size="mini" type="danger" @click="handleDelete(row,$index)">
+          <el-button v-if="row.status!='deleted'" size="mini" type="danger" @click="handleDelete(row,$index)">
             {{ $t('table.delete') }}
-          </el-button> -->
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -106,7 +106,7 @@
 </template>
 
 <script>
-import { fetchList, fetchCreate, fetchUpdate } from '@/api/test'
+import { fetchList, fetchCreate, fetchUpdate, fetchDelete } from '@/api/test'
 import { parseTime } from '@/utils'
 import waves from '@/directive/waves' // waves directi
 import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
@@ -269,6 +269,20 @@ export default {
             this.handleFilter()
           })
         }
+      })
+    },
+    handleDelete(row, index) {
+      const data = {}
+      data.id = row.id
+      fetchDelete(data).then(() => {
+        this.dialogFormVisible = false
+        this.$notify({
+          title: '成功',
+          message: '删除成功',
+          type: 'success',
+          duration: 2000
+        })
+        this.handleFilter()
       })
     }
   }

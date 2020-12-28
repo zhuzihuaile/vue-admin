@@ -25,3 +25,10 @@ export function fetchUpdate(data) {
     data
   })
 }
+
+export function fetchDelete(data) {
+  return request({
+    url: hosturl + '/delete/' + data.id,
+    method: 'post'
+  })
+}

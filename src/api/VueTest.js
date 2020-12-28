@@ -1,4 +1,4 @@
-// @author: zhuzi @date 2020-12-25
+// @author: zhuzi @date 2020-12-28
 import request from '@/utils/request'
 
 const hosturl = process.env.VUE_APP_HOST_URL + '/vue/test'
@@ -26,3 +26,11 @@ export function fetchUpdate(data) {
     data
   })
 }
+
+export function fetchDelete(data) {
+  return request({
+    url: hosturl + '/delete/' + data.id,
+    method: 'post'
+  })
+}
+

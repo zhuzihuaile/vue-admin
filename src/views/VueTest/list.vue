@@ -1,4 +1,4 @@
-<!-- @author: zhuzi @date 2020-12-25  -->
+<!-- @author: zhuzi @date 2020-12-28  -->
 <template>
   <div class="app-container">
     <div class="filter-container">
@@ -61,13 +61,13 @@
       </el-table-column>
 
       <el-table-column :label="$t('table.actions')" align="center" width="230" class-name="small-padding fixed-width">
-        <template slot-scope="{row}">
+        <template slot-scope="{row, $index}">
           <el-button type="primary" size="mini" @click="handleUpdate(row)">
             {{ $t('table.edit') }}
           </el-button>
-          <!-- <el-button v-if="row.status!='deleted'" size="mini" type="danger" @click="handleDelete(row,$index)">
+          <el-button v-if="row.status!='deleted'" size="mini" type="danger" @click="handleDelete(row,$index)">
             {{ $t('table.delete') }}
-          </el-button> -->
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -80,14 +80,14 @@
         <el-form-item label="标题" prop="title">
           <el-input v-model="temp.title" />
         </el-form-item>
+        <el-form-item label="时间" prop="testTime">
+          <el-date-picker v-model="temp.testTime" type="datetime" placeholder="Please pick a date" />
+        </el-form-item>
         <el-form-item label="状态" prop="status">
           <el-input v-model="temp.status" type="number" />
         </el-form-item>
         <el-form-item label="备注" prop="summary">
           <el-input v-model="temp.summary" :autosize="{ minRows: 2, maxRows: 3}" type="textarea" placeholder="Please input" />
-        </el-form-item>
-        <el-form-item label="时间" prop="testTime">
-          <el-date-picker v-model="temp.testTime" type="datetime" placeholder="Please pick a date" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -104,7 +104,7 @@
 </template>
 
 <script>
-import { fetchList, fetchCreate, fetchUpdate } from '@/api/VueTest'
+import { fetchList, fetchCreate, fetchUpdate, fetchDelete } from '@/api/VueTest'
 import { parseTime } from '@/utils'
 import waves from '@/directive/waves' // waves directi
 import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
@@ -127,7 +127,7 @@ export default {
         title: '',
         status: undefined,
         summary: '',
-        testTime: new Date(),
+        testTime: new Date()
       },
       textMap: {
         update: 'Edit',
@@ -139,7 +139,7 @@ export default {
         title: [{ required: true, message: 'title is required', trigger: 'blur' }],
         status: [{ required: true, message: 'status is required', trigger: 'change' }],
         summary: [{ required: true, message: 'summary is required', trigger: 'blur' }],
-        testTime: [{ type: 'date', required: true, message: 'testTime is required', trigger: 'change' }],
+        testTime: [{ type: 'date', required: true, message: 'testTime is required', trigger: 'change' }]
       },
       listQuery: {
         sortby: undefined,
@@ -194,7 +194,7 @@ export default {
         title: '',
         status: undefined,
         summary: '',
-        testTime: new Date(),
+        testTime: new Date()
       }
     },
     handleCreate() {
@@ -253,6 +253,20 @@ export default {
             this.handleFilter()
           })
         }
+      })
+    },
+    handleDelete(row, index) {
+      const data = {}
+      data.id = row.id
+      fetchDelete(data).then(() => {
+        this.dialogFormVisible = false
+        this.$notify({
+          title: '成功',
+          message: '删除成功',
+          type: 'success',
+          duration: 2000
+        })
+        this.handleFilter()
       })
     }
   }
