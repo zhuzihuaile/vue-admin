@@ -56,7 +56,7 @@ export const constantRoutes = [
   },
 
   {
-    path: '',
+    path: '/test',
     component: Layout,
     redirect: '/test/list',
     name: 'test',
@@ -71,7 +71,7 @@ export const constantRoutes = [
     ]
   },
   {
-    path: '',
+    path: '/vuetest',
     component: Layout,
     redirect: '/vuetest/list',
     name: 'test',

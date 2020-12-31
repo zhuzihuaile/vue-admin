@@ -136,9 +136,7 @@ export default {
   components: { Pagination },
   directives: { waves },
   filters: {
-    statusFilter(status) {
-      statusFilter(status)
-    },
+    statusFilter: statusFilter,
     parseTime: parseTime
   },
   data() {
