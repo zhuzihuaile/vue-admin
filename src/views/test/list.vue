@@ -8,6 +8,9 @@
       <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="handleCreate">
         {{ $t('table.add') }}
       </el-button>
+      <el-button v-waves :loading="downloadLoading" class="filter-item" type="primary" icon="el-icon-download" @click="handleDownload">
+        {{ $t('table.export') }}
+      </el-button>
     </div>
     <el-table
       :key="tableKey"
@@ -120,17 +123,21 @@ const statusOptions = [
   }
 ]
 
+function statusFilter(status) {
+  for (var item of statusOptions) {
+    if (item.value === status) {
+      return item.lable
+    }
+  }
+}
+
 export default {
   name: 'List',
   components: { Pagination },
   directives: { waves },
   filters: {
     statusFilter(status) {
-      for (var item of statusOptions) {
-        if (item.value === status) {
-          return item.lable
-        }
-      }
+      statusFilter(status)
     },
     parseTime: parseTime
   },
@@ -154,6 +161,7 @@ export default {
       statusOptions: statusOptions,
       dialogFormVisible: false,
       dialogStatus: '',
+      downloadLoading: false,
       rules: {
         summary: [{ required: true, message: 'summary is required', trigger: 'change' }],
         testTime: [{ type: 'date', required: true, message: 'timestamp is required', trigger: 'change' }],
@@ -284,6 +292,31 @@ export default {
         })
         this.handleFilter()
       })
+    },
+    handleDownload() {
+      this.downloadLoading = true
+      import('@/vendor/Export2Excel').then(excel => {
+        const tHeader = ['ID', '标题', '状态', '简介', '时间']
+        const filterVal = ['id', 'title', 'status', 'summary', 'testTime']
+        const data = this.formatJson(filterVal)
+        excel.export_json_to_excel({
+          header: tHeader,
+          data,
+          filename: 'test'
+        })
+        this.downloadLoading = false
+      })
+    },
+    formatJson(filterVal) {
+      return this.list.map(v => filterVal.map(j => {
+        if (j === 'testTime') {
+          return parseTime(v[j])
+        } else if (j === 'status') {
+          return statusFilter(v[j])
+        } else {
+          return v[j]
+        }
+      }))
     }
   }
 }
